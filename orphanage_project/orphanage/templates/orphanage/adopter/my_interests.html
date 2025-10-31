@@ -1,0 +1,128 @@
+{% extends "orphanage/adopter/base.html" %}
+{% block title %}My Interests{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="fas fa-heart"></i> My Interests</h2>
+            <div class="text-muted">
+                {{ page_obj.paginator.count }} children you're interested in
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if page_obj %}
+    <div class="row">
+        {% for interest in page_obj %}
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            {% if interest.child.photo %}
+                                <img src="{{ interest.child.photo.url }}" class="img-fluid rounded" 
+                                     alt="{{ interest.child.name }}" style="height: 120px; width: 100%; object-fit: cover;">
+                            {% else %}
+                                <div class="bg-light rounded d-flex align-items-center justify-content-center" 
+                                     style="height: 120px;">
+                                    <i class="fas fa-user fa-3x text-muted"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-8">
+                            <h5 class="card-title">{{ interest.child.name }}</h5>
+                            <p class="text-muted">
+                                <i class="fas fa-birthday-cake"></i> {{ interest.child.age|default:"N/A" }} years | 
+                                <i class="fas fa-venus-mars"></i> {{ interest.child.gender }}
+                            </p>
+                            
+                            <p class="card-text small text-muted">
+                                <i class="fas fa-calendar"></i> Interest expressed: {{ interest.interest_date|date:"M d, Y" }}
+                            </p>
+                            
+                            {% if interest.notes %}
+                                <div class="mt-2">
+                                    <h6><i class="fas fa-comment"></i> Your Notes</h6>
+                                    <p class="card-text small">{{ interest.notes|truncatechars:100 }}</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{% url 'orphanage:child_detail_adopter' interest.child.id %}" 
+                           class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-eye"></i> View Details
+                        </a>
+                        
+                        {% if adopter.is_approved %}
+                            <a href="{% url 'orphanage:apply_for_adoption' interest.child.id %}" 
+                               class="btn btn-sm btn-success">
+                                <i class="fas fa-file-alt"></i> Apply Now
+                            </a>
+                        {% else %}
+                            <span class="text-warning small">
+                                <i class="fas fa-clock"></i> Account pending approval
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <nav aria-label="Interests pagination">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1">
+                        <i class="fas fa-angle-double-left"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
+                        <i class="fas fa-angle-left"></i>
+                    </a>
+                </li>
+            {% endif %}
+
+            <li class="page-item active">
+                <span class="page-link">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                </span>
+            </li>
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">
+                        <i class="fas fa-angle-right"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">
+                        <i class="fas fa-angle-double-right"></i>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+{% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-heart fa-4x text-muted mb-3"></i>
+        <h4 class="text-muted">No interests expressed yet</h4>
+        <p class="text-muted">Start by browsing children and expressing interest in those you'd like to adopt.</p>
+        <a href="{% url 'orphanage:browse_children' %}" class="btn btn-primary">
+            <i class="fas fa-child"></i> Browse Children
+        </a>
+    </div>
+{% endif %}
+{% endblock %}

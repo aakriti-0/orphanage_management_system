@@ -1,0 +1,167 @@
+{% extends "orphanage/adopter/base.html" %}
+{% block title %}Browse Children{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="fas fa-child"></i> Browse Children</h2>
+            <div class="text-muted">
+                {{ page_obj.paginator.count }} children available
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search and Filter -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <label for="search" class="form-label">Search by Name</label>
+                <input type="text" class="form-control" id="search" name="search" 
+                       value="{{ search_query }}" placeholder="Enter child's name">
+            </div>
+            <div class="col-md-2">
+                <label for="gender" class="form-label">Gender</label>
+                <select class="form-select" id="gender" name="gender">
+                    <option value="">All</option>
+                    <option value="Male" {% if gender_filter == 'Male' %}selected{% endif %}>Male</option>
+                    <option value="Female" {% if gender_filter == 'Female' %}selected{% endif %}>Female</option>
+                    <option value="Other" {% if gender_filter == 'Other' %}selected{% endif %}>Other</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="age_min" class="form-label">Min Age</label>
+                <input type="number" class="form-control" id="age_min" name="age_min" 
+                       value="{{ age_min }}" min="0" max="18">
+            </div>
+            <div class="col-md-2">
+                <label for="age_max" class="form-label">Max Age</label>
+                <input type="number" class="form-control" id="age_max" name="age_max" 
+                       value="{{ age_max }}" min="0" max="18">
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="fas fa-search"></i> Search
+                </button>
+                <a href="{% url 'orphanage:browse_children' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-times"></i> Clear
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Children Grid -->
+{% if page_obj %}
+    <div class="row">
+        {% for child in page_obj %}
+        <div class="col-md-4 col-lg-3 mb-4">
+            <div class="card h-100">
+                {% if child.photo %}
+                    <img src="{{ child.photo.url }}" class="card-img-top" alt="{{ child.name }}" 
+                         style="height: 200px; object-fit: cover;">
+                {% else %}
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
+                         style="height: 200px;">
+                        <i class="fas fa-user fa-4x text-muted"></i>
+                    </div>
+                {% endif %}
+                
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">{{ child.name }}</h5>
+                    <div class="mb-2">
+                        <span class="badge bg-primary me-1">
+                            <i class="fas fa-birthday-cake"></i> {{ child.age|default:"N/A" }} years
+                        </span>
+                        <span class="badge bg-info">
+                            <i class="fas fa-venus-mars"></i> {{ child.gender }}
+                        </span>
+                    </div>
+                    
+                    {% if child.background %}
+                        <p class="card-text small text-muted">
+                            <i class="fas fa-book"></i> {{ child.background|truncatechars:80 }}
+                        </p>
+                    {% elif child.personality %}
+                        <p class="card-text small text-muted">
+                            <i class="fas fa-smile"></i> {{ child.personality|truncatechars:80 }}
+                        </p>
+                    {% elif child.hobbies_interests %}
+                        <p class="card-text small text-muted">
+                            <i class="fas fa-palette"></i> {{ child.hobbies_interests|truncatechars:80 }}
+                        </p>
+                    {% elif child.need %}
+                        <p class="card-text small text-muted">
+                            <i class="fas fa-info-circle"></i> {{ child.need|truncatechars:80 }}
+                        </p>
+                    {% endif %}
+                    
+                    <div class="mt-auto">
+                        <a href="{% url 'orphanage:child_detail_adopter' child.id %}" 
+                           class="btn btn-primary w-100">
+                            <i class="fas fa-eye"></i> View Details
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="card-footer text-muted small">
+                    <i class="fas fa-calendar"></i> 
+                    Admitted: {{ child.admission_date|date:"M d, Y" }}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <nav aria-label="Children pagination">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if gender_filter %}&gender={{ gender_filter }}{% endif %}{% if age_min %}&age_min={{ age_min }}{% endif %}{% if age_max %}&age_max={{ age_max }}{% endif %}">
+                        <i class="fas fa-angle-double-left"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if gender_filter %}&gender={{ gender_filter }}{% endif %}{% if age_min %}&age_min={{ age_min }}{% endif %}{% if age_max %}&age_max={{ age_max }}{% endif %}">
+                        <i class="fas fa-angle-left"></i>
+                    </a>
+                </li>
+            {% endif %}
+
+            <li class="page-item active">
+                <span class="page-link">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                </span>
+            </li>
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if gender_filter %}&gender={{ gender_filter }}{% endif %}{% if age_min %}&age_min={{ age_min }}{% endif %}{% if age_max %}&age_max={{ age_max }}{% endif %}">
+                        <i class="fas fa-angle-right"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if gender_filter %}&gender={{ gender_filter }}{% endif %}{% if age_min %}&age_min={{ age_min }}{% endif %}{% if age_max %}&age_max={{ age_max }}{% endif %}">
+                        <i class="fas fa-angle-double-right"></i>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+{% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-child fa-4x text-muted mb-3"></i>
+        <h4 class="text-muted">No children found</h4>
+        <p class="text-muted">Try adjusting your search criteria or check back later.</p>
+        <a href="{% url 'orphanage:browse_children' %}" class="btn btn-primary">
+            <i class="fas fa-refresh"></i> View All Children
+        </a>
+    </div>
+{% endif %}
+{% endblock %}

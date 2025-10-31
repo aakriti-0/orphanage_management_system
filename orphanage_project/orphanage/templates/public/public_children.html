@@ -1,0 +1,21 @@
+{% extends 'orphanage/base.html' %}
+
+{% block title %}Meet Our Children{% endblock %}
+
+{% block content %}
+<h2 class="text-center mb-4">Meet Our Children</h2>
+<div class="row">
+    {% for child in children %}
+    <div class="col-md-3 mb-4">
+        <div class="card h-100">
+            <a href="{% url 'orphanage:child_detail' child.id %}">
+                <img src="{{ child.photo.url }}" class="card-img-top" alt="{{ child.name }}" style="height: 200px; object-fit: cover;">
+            </a>
+            <div class="card-body text-center">
+                <h5 class="card-title">{{ child.name }}</h5>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

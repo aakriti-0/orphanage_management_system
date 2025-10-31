@@ -1,0 +1,26 @@
+{% extends "orphanage/base.html" %}
+{% block title %}My Donations{% endblock %}
+
+{% block content %}
+<h2>My Donations</h2>
+<table class="table table-striped mt-3">
+    <thead>
+        <tr>
+            <th>Amount</th>
+            <th>Child Allocated</th>
+            <th>Date</th>
+            <th>Fulfilled</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for donation in donations %}
+        <tr>
+            <td>{{ donation.amount_raised }}</td>
+            <td>{{ donation.allocated_to_child.name if donation.allocated_to_child else "Orphanage" }}</td>
+            <td>{{ donation.donated_at|date:"d M Y H:i" }}</td>
+            <td>{{ donation.fulfilled }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

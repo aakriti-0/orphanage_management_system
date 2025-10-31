@@ -1,0 +1,9 @@
+{% load static %}
+<h2>Delete Child</h2>
+<p>Are you sure you want to delete <strong>{{ child.name }}</strong>?</p>
+<form method="post">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-danger">Yes, delete</button>
+  <a href="{% url 'orphanage:admin_children_list' %}" class="btn btn-secondary">Cancel</a>
+</form>
+

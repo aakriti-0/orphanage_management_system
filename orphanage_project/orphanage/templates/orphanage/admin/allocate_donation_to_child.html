@@ -1,0 +1,33 @@
+{% extends 'orphanage/admin/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <h3>Allocate Donation #{{ donation.id }} to a Child</h3>
+  <p>Total amount: ₹{{ donation.amount }}</p>
+  <p>Already allocated: ₹{{ allocated_total }}</p>
+  <p>Remaining: ₹{{ donation_remaining }}</p>
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label class="form-label">Select Child</label>
+      <select name="child_id" class="form-select" required>
+        <option value="">-- Select --</option>
+        {% for child in children %}
+        <option value="{{ child.id }}">{{ child.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Amount to allocate</label>
+      <input type="number" name="amount" step="0.01" min="0.01" max="{{ donation_remaining }}" class="form-control" required />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Allocate</button>
+    <a href="{% url 'orphanage:admin_donation_allocations' %}" class="btn btn-secondary">Back</a>
+  </form>
+</div>
+{% endblock %}
+
+

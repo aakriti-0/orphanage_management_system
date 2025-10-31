@@ -1,0 +1,158 @@
+{% extends "orphanage/admin/base.html" %}
+{% block title %}Review Application - {{ application.child.name }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'orphanage:admin_dashboard' %}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'orphanage:admin_adoption_applications' %}">Applications</a></li>
+                <li class="breadcrumb-item active">Review Application</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="fas fa-user"></i> Adopter Information</h4>
+            </div>
+            <div class="card-body">
+                <h5>{{ application.adopter.user.get_full_name|default:application.adopter.user.username }}</h5>
+                <p><strong>Email:</strong> {{ application.adopter.user.email }}</p>
+                <p><strong>Phone:</strong> {{ application.adopter.phone|default:"Not provided" }}</p>
+                <p><strong>Occupation:</strong> {{ application.adopter.occupation|default:"Not provided" }}</p>
+                <p><strong>Annual Income:</strong> ₹{{ application.adopter.annual_income|default:"Not provided" }}</p>
+                <p><strong>Family Size:</strong> {{ application.adopter.family_size }}</p>
+                <p><strong>Marital Status:</strong> {{ application.adopter.get_marital_status_display }}</p>
+                
+                {% if application.adopter.adoption_experience %}
+                <div class="mt-3">
+                    <h6>Adoption Experience:</h6>
+                    <p>{{ application.adopter.adoption_experience }}</p>
+                </div>
+                {% endif %}
+                
+                {% if application.adopter.motivation %}
+                <div class="mt-3">
+                    <h6>Motivation:</h6>
+                    <p>{{ application.adopter.motivation }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="fas fa-child"></i> Child Information</h4>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    {% if application.child.photo %}
+                        <img src="{{ application.child.photo.url }}" class="img-fluid rounded" 
+                             alt="{{ application.child.name }}" style="max-height: 200px;">
+                    {% else %}
+                        <div class="bg-light rounded d-flex align-items-center justify-content-center" 
+                             style="height: 200px;">
+                            <i class="fas fa-user fa-4x text-muted"></i>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <h5>{{ application.child.name }}</h5>
+                <p><strong>Age:</strong> {{ application.child.age|default:"N/A" }} years</p>
+                <p><strong>Gender:</strong> {{ application.child.gender }}</p>
+                <p><strong>Admission Date:</strong> {{ application.child.admission_date|date:"M d, Y" }}</p>
+                
+                {% if application.child.need %}
+                <div class="mt-3">
+                    <h6>Special Needs:</h6>
+                    <p>{{ application.child.need }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="fas fa-file-alt"></i> Application Details</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Application Date:</strong> {{ application.application_date|date:"M d, Y H:i" }}</p>
+                        <p><strong>Current Status:</strong> 
+                            <span class="badge bg-{% if application.status == 'approved' %}success{% elif application.status == 'rejected' %}danger{% elif application.status == 'pending' %}warning{% elif application.status == 'under_review' %}info{% else %}secondary{% endif %}">
+                                {{ application.get_status_display }}
+                            </span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        {% if application.reviewed_by %}
+                            <p><strong>Reviewed By:</strong> {{ application.reviewed_by.get_full_name|default:application.reviewed_by.username }}</p>
+                            <p><strong>Review Date:</strong> {{ application.review_date|date:"M d, Y H:i" }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                {% if application.notes %}
+                <div class="mt-3">
+                    <h6>Application Notes:</h6>
+                    <p>{{ application.notes }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="fas fa-gavel"></i> Review Application</h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Application Status *</label>
+                        <select class="form-select" id="status" name="status" required>
+                            <option value="pending" {% if application.status == 'pending' %}selected{% endif %}>Pending</option>
+                            <option value="under_review" {% if application.status == 'under_review' %}selected{% endif %}>Under Review</option>
+                            <option value="approved" {% if application.status == 'approved' %}selected{% endif %}>Approved</option>
+                            <option value="rejected" {% if application.status == 'rejected' %}selected{% endif %}>Rejected</option>
+                            <option value="completed" {% if application.status == 'completed' %}selected{% endif %}>Completed</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Review Notes</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="4" 
+                                  placeholder="Add any notes about your review decision...">{{ application.notes }}</textarea>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'orphanage:admin_adoption_applications' %}" class="btn btn-secondary me-md-2">
+                            <i class="fas fa-arrow-left"></i> Back to Applications
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Update Application
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,113 @@
+{% extends "orphanage/admin/base.html" %}
+{% block title %}Adoption Applications{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-file-alt"></i> Adoption Applications</h2>
+    <div class="text-muted">
+        {{ applications|length }} total applications
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body text-center">
+                <h5 class="card-title">Pending</h5>
+                <h3>{{ applications|length }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body text-center">
+                <h5 class="card-title">Under Review</h5>
+                <h3>0</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body text-center">
+                <h5 class="card-title">Approved</h5>
+                <h3>0</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-danger text-white">
+            <div class="card-body text-center">
+                <h5 class="card-title">Rejected</h5>
+                <h3>0</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-list"></i> Application List</h5>
+    </div>
+    <div class="card-body">
+        {% if applications %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Adopter</th>
+                            <th>Child</th>
+                            <th>Application Date</th>
+                            <th>Status</th>
+                            <th>Reviewed By</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for application in applications %}
+                        <tr>
+                            <td>
+                                <strong>{{ application.adopter.user.get_full_name|default:application.adopter.user.username }}</strong>
+                                <br>
+                                <small class="text-muted">{{ application.adopter.user.email }}</small>
+                            </td>
+                            <td>
+                                <strong>{{ application.child.name }}</strong>
+                                <br>
+                                <small class="text-muted">{{ application.child.age|default:"N/A" }} years, {{ application.child.gender }}</small>
+                            </td>
+                            <td>{{ application.application_date|date:"M d, Y" }}</td>
+                            <td>
+                                <span class="badge bg-{% if application.status == 'approved' %}success{% elif application.status == 'rejected' %}danger{% elif application.status == 'pending' %}warning{% elif application.status == 'under_review' %}info{% else %}secondary{% endif %}">
+                                    {{ application.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if application.reviewed_by %}
+                                    {{ application.reviewed_by.get_full_name|default:application.reviewed_by.username }}
+                                    <br>
+                                    <small class="text-muted">{{ application.review_date|date:"M d, Y" }}</small>
+                                {% else %}
+                                    <span class="text-muted">Not reviewed</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'orphanage:admin_review_application' application.id %}" 
+                                   class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i> Review
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-file-alt fa-4x text-muted mb-3"></i>
+                <h4 class="text-muted">No applications found</h4>
+                <p class="text-muted">No adoption applications have been submitted yet.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

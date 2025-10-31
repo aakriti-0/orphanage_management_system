@@ -1,0 +1,55 @@
+{% extends "orphanage/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <h2>Allocate Expense: {{ expense.description }}</h2>
+    <p>Total Amount: {{ expense.total_amount }}</p>
+
+    <form method="POST">
+        {% csrf_token %}
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Child Name</th>
+                    <th>Age</th>
+                    <th>Need</th>
+                    <th>Allocate Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for child in children %}
+                <tr>
+                    <td>{{ child.name }}</td>
+                    <td>{{ child.age }}</td>
+                    <td>{{ child.need }}</td>
+                    <td>
+                        <input type="number" name="child_{{ child.id }}" step="0.01" placeholder="Enter amount" required>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <button type="submit" class="btn btn-primary">Allocate Expense</button>
+    </form>
+</div>
+
+<style>
+    .container {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 1rem;
+        background-color: #f9f9f9;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    table th, table td {
+        text-align: center;
+        vertical-align: middle;
+    }
+    h2 {
+        margin-bottom: 1.5rem;
+    }
+</style>
+{% endblock %}

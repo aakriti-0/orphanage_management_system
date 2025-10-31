@@ -1,0 +1,48 @@
+{% extends "orphanage/base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <h2>Make a Donation</h2>
+
+    {% if selected_need %}
+        <p>Donating for: <strong>{{ selected_need.orphanage.name }} - {{ selected_need.category }}</strong></p>
+        <p>Description: {{ selected_need.description }}</p>
+        <p>Amount Needed: {{ selected_need.amount_needed }}</p>
+        <p>Amount Raised: {{ selected_need.amount_raised }}</p>
+
+        <!-- List all children in the orphanage -->
+        <h5>Children in this Orphanage:</h5>
+        {% if selected_need.orphanage.children.exists %}
+            <ul class="list-group mb-3">
+                {% for child in selected_need.orphanage.children.all %}
+                    <li class="list-group-item">
+                        {{ child.name }} | Age: {{ child.age }} | Gender: {{ child.gender }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-muted">No children registered yet.</p>
+        {% endif %}
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="amount" class="form-label">Donation Amount</label>
+            <input type="number" name="amount" id="amount" class="form-control" required>
+        </div>
+
+        <!-- Allocate donation to children (optional) -->
+        <h5>Allocate Donation to Specific Children (optional)</h5>
+        {% for child in selected_need.orphanage.children.all %}
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="children" value="{{ child.id }}" id="child{{ child.id }}">
+                <label class="form-check-label" for="child{{ child.id }}">
+                    {{ child.name }}
+                </label>
+            </div>
+        {% endfor %}
+
+        <button type="submit" class="btn btn-primary mt-3">Donate</button>
+    </form>
+</div>
+{% endblock %}

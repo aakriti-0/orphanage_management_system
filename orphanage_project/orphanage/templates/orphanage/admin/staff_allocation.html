@@ -1,0 +1,88 @@
+{% extends "orphanage/base.html" %}
+{% block title %}Staff Allocation{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Staff Allocation Overview</h2>
+
+<style>
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: #f8f9fa;
+    }
+    table th, table td {
+        padding: 12px 15px;
+        text-align: left;
+        border: 1px solid #dee2e6;
+    }
+    table th {
+        background-color: #343a40;
+        color: #ffffff;
+    }
+    table tr:nth-child(even) {
+        background-color: #e9ecef;
+    }
+    table tr:hover {
+        background-color: #ced4da;
+    }
+    h2 {
+        color: #343a40;
+    }
+    .child-card {
+        border: 1px solid #dee2e6;
+        padding: 15px;
+        margin-bottom: 15px;
+        background-color: #f8f9fa;
+        display: flex;
+        align-items: center;
+    }
+    .child-photo {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        margin-right: 15px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+    }
+</style>
+
+<!-- Staff Allocation Summary Table -->
+<table class="table table-bordered mt-3">
+    <thead>
+        <tr>
+            <th>Staff Name</th>
+            <th>Number of Children Allocated</th>
+            <th>Last Allocation Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% regroup allocations by staff as staff_groups %}
+        {% for group in staff_groups %}
+        <tr>
+            <td>{{ group.grouper.name }}</td>
+            <td>{{ group.list|length }}</td>
+            <td>{{ group.list|last.allocated_at|date:"d M Y H:i" }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Child Allocation Details -->
+<h2 class="mt-5 mb-3">Child Allocation Details</h2>
+{% for alloc in allocations %}
+<div class="child-card">
+    {% if alloc.child.photo %}
+        <img src="{{ alloc.child.photo.url }}" alt="{{ alloc.child.name }}" class="child-photo">
+    {% else %}
+        <img src="{% static 'default_child.png' %}" alt="No photo" class="child-photo">
+    {% endif %}
+    <div>
+        <strong>Name:</strong> {{ alloc.child.name }}<br>
+        <strong>Age:</strong> {{ alloc.child.age }}<br>
+        <strong>Gender:</strong> {{ alloc.child.gender }}<br>
+        <strong>Allocated To:</strong> {{ alloc.staff.name }}<br>
+        <strong>Allocation Date:</strong> {{ alloc.allocated_at|date:"d M Y H:i" }}
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

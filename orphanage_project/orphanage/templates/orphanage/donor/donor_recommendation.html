@@ -1,0 +1,35 @@
+{% extends "orphanage/base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <h2>Recommended Donations</h2>
+
+    {% if recommended_needs %}
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Orphanage</th>
+                <th>Category</th>
+                <th>Description</th>
+                <th>Amount Needed</th>
+                <th>Amount Raised</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for need in recommended_needs %}
+            <tr>
+                <td>{{ need.orphanage.name }}</td>
+                <td>{{ need.category }}</td>
+                <td>{{ need.description }}</td>
+                <td>{{ need.amount_needed }}</td>
+                <td>{{ need.amount_raised }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p>All orphanage needs are fulfilled. Thank you for your support!</p>
+    {% endif %}
+
+    <a href="{% url 'make_donation' %}" class="btn btn-primary mt-3">Donate Now</a>
+</div>
+{% endblock %}

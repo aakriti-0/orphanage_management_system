@@ -1,0 +1,42 @@
+{% extends "orphanage/admin/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <h1>Staff List</h1>
+    <a href="{% url 'orphanage:add_staff' %}" class="btn btn-primary mb-3">Add New Staff</a>
+
+    {% if staffs %}
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Position</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for staff in staffs %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ staff.name }}</td>
+                <td>{{ staff.email }}</td>
+                <td>{{ staff.phone }}</td>
+                <td>{{ staff.position }}</td>
+                <td>
+                    <!-- Example actions -->
+                    <a href="#" class="btn btn-sm btn-warning">Edit</a>
+                    <a href="#" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p>No staff members found.</p>
+    {% endif %}
+</div>
+{% endblock %}

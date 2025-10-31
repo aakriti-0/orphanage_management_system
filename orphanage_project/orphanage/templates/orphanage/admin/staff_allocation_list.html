@@ -1,0 +1,54 @@
+
+{% block content %}
+<h2 class="mb-4">Staff Allocation</h2>
+
+<style>
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: #f8f9fa;
+    }
+
+    table th, table td {
+        padding: 12px 15px;
+        text-align: left;
+        border: 1px solid #dee2e6;
+    }
+
+    table th {
+        background-color: #343a40;
+        color: #ffffff;
+    }
+
+    table tr:nth-child(even) {
+        background-color: #e9ecef;
+    }
+
+    table tr:hover {
+        background-color: #ced4da;
+    }
+
+    h2 {
+        color: #343a40;
+    }
+</style>
+
+<table class="table table-bordered mt-3">
+    <thead>
+        <tr>
+            <th>Staff Name</th>
+            <th>Child Name</th>
+            <th>Allocation Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for alloc in allocations %}
+        <tr>
+            <td>{{ alloc.staff.name }}</td>
+            <td>{{ alloc.child.name }}</td>
+            <td>{{ alloc.allocated_at|date:"d M Y H:i" }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

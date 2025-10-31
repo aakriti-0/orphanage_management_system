@@ -1,0 +1,28 @@
+{% load static %}
+<h2>Expenses</h2>
+<p><a href="{% url 'orphanage:add_expense' %}" class="btn btn-primary">Add Expense</a></p>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Orphanage</th>
+      <th>Amount</th>
+      <th>Description</th>
+      <th>Date</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for expense in expenses %}
+    <tr>
+      <td>{{ expense.orphanage_name }}</td>
+      <td>{{ expense.total_amount|floatformat:2 }}</td>
+      <td>{{ expense.description }}</td>
+      <td>{{ expense.date|date:"Y-m-d" }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="4" class="text-center text-muted">No expenses recorded.</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+

@@ -1,0 +1,199 @@
+{% extends "orphanage/adopter/base.html" %}
+{% block title %}Adopter Dashboard{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="fas fa-home"></i> Welcome, {{ adopter.user.get_full_name|default:adopter.user.username }}!</h2>
+            <div class="text-end">
+                <span class="badge bg-{% if adopter.is_approved %}success{% else %}warning{% endif %} fs-6">
+                    {% if adopter.is_approved %}
+                        <i class="fas fa-check-circle"></i> Account Approved
+                    {% else %}
+                        <i class="fas fa-clock"></i> Pending Approval
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if not adopter.is_approved %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            <strong>Account Pending Approval:</strong> Your account is currently under review. 
+            You can browse children and express interest, but you'll need admin approval to submit adoption applications.
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Quick Stats -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-file-alt fa-2x text-primary mb-2"></i>
+                <h5 class="card-title">{{ total_applications }}</h5>
+                <p class="card-text">Total Applications</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-clock fa-2x text-warning mb-2"></i>
+                <h5 class="card-title">{{ pending_applications }}</h5>
+                <p class="card-text">Pending Applications</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-heart fa-2x text-danger mb-2"></i>
+                <h5 class="card-title">{{ interests|length }}</h5>
+                <p class="card-text">Interests Expressed</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-child fa-2x text-success mb-2"></i>
+                <h5 class="card-title">{{ available_children|length }}</h5>
+                <p class="card-text">Available Children</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Available Children -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-child"></i> Available Children</h5>
+                <a href="{% url 'orphanage:browse_children' %}" class="btn btn-sm btn-outline-primary">
+                    View All <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            <div class="card-body">
+                {% if available_children %}
+                    <div class="row">
+                        {% for child in available_children %}
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100">
+                                {% if child.photo %}
+                                    <img src="{{ child.photo.url }}" class="card-img-top" alt="{{ child.name }}" style="height: 150px; object-fit: cover;">
+                                {% else %}
+                                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
+                                        <i class="fas fa-user fa-3x text-muted"></i>
+                                    </div>
+                                {% endif %}
+                                <div class="card-body p-2">
+                                    <h6 class="card-title">{{ child.name }}</h6>
+                                    <p class="card-text small text-muted">
+                                        Age: {{ child.age|default:"N/A" }} | {{ child.gender }}
+                                    </p>
+                                    <a href="{% url 'orphanage:child_detail_adopter' child.id %}" class="btn btn-sm btn-primary">
+                                        View Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center">No available children at the moment.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Applications -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-file-alt"></i> Recent Applications</h5>
+                <a href="{% url 'orphanage:my_applications' %}" class="btn btn-sm btn-outline-primary">
+                    View All <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            <div class="card-body">
+                {% if applications %}
+                    {% for application in applications %}
+                    <div class="d-flex justify-content-between align-items-center mb-3 p-2 border rounded">
+                        <div>
+                            <h6 class="mb-1">{{ application.child.name }}</h6>
+                            <small class="text-muted">{{ application.application_date|date:"M d, Y" }}</small>
+                        </div>
+                        <span class="status-badge status-{{ application.status }}">
+                            {{ application.get_status_display }}
+                        </span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted text-center">No applications yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <!-- Recent Interests -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-heart"></i> Recent Interests</h5>
+                <a href="{% url 'orphanage:my_interests' %}" class="btn btn-sm btn-outline-primary">
+                    View All <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            <div class="card-body">
+                {% if interests %}
+                    {% for interest in interests %}
+                    <div class="d-flex justify-content-between align-items-center mb-3 p-2 border rounded">
+                        <div>
+                            <h6 class="mb-1">{{ interest.child.name }}</h6>
+                            <small class="text-muted">{{ interest.interest_date|date:"M d, Y" }}</small>
+                        </div>
+                        <a href="{% url 'orphanage:child_detail_adopter' interest.child.id %}" class="btn btn-sm btn-outline-primary">
+                            View
+                        </a>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted text-center">No interests expressed yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-bolt"></i> Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'orphanage:browse_children' %}" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Browse Children
+                    </a>
+                    <a href="{% url 'orphanage:my_applications' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-file-alt"></i> My Applications
+                    </a>
+                    <a href="{% url 'orphanage:update_profile' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-edit"></i> Update Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

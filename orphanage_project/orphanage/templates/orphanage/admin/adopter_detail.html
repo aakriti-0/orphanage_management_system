@@ -1,0 +1,181 @@
+{% extends "orphanage/admin/base.html" %}
+{% block title %}Adopter Details - {{ adopter.user.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'orphanage:admin_dashboard' %}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'orphanage:admin_adopters_list' %}">Adopters</a></li>
+                <li class="breadcrumb-item active">{{ adopter.user.get_full_name }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">
+                    <i class="fas fa-user"></i> {{ adopter.user.get_full_name|default:adopter.user.username }}
+                </h4>
+                <span class="badge bg-{% if adopter.is_approved %}success{% else %}warning{% endif %} fs-6">
+                    {% if adopter.is_approved %}
+                        <i class="fas fa-check-circle"></i> Approved
+                    {% else %}
+                        <i class="fas fa-clock"></i> Pending Approval
+                    {% endif %}
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-envelope"></i> Contact Information</h6>
+                        <p><strong>Email:</strong> {{ adopter.user.email }}</p>
+                        <p><strong>Phone:</strong> {{ adopter.phone|default:"Not provided" }}</p>
+                        <p><strong>Address:</strong> {{ adopter.address|default:"Not provided" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-briefcase"></i> Professional Information</h6>
+                        <p><strong>Occupation:</strong> {{ adopter.occupation|default:"Not provided" }}</p>
+                        <p><strong>Annual Income:</strong> ₹{{ adopter.annual_income|default:"Not provided" }}</p>
+                        <p><strong>Family Size:</strong> {{ adopter.family_size }}</p>
+                    </div>
+                </div>
+                
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-heart"></i> Family Information</h6>
+                        <p><strong>Marital Status:</strong> {{ adopter.get_marital_status_display }}</p>
+                        <p><strong>Has Children:</strong> 
+                            {% if adopter.has_children %}
+                                <span class="text-success"><i class="fas fa-check"></i> Yes</span>
+                            {% else %}
+                                <span class="text-muted"><i class="fas fa-times"></i> No</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-calendar"></i> Account Information</h6>
+                        <p><strong>Username:</strong> {{ adopter.user.username }}</p>
+                        <p><strong>Registered:</strong> {{ adopter.created_at|date:"M d, Y H:i" }}</p>
+                        <p><strong>Last Updated:</strong> {{ adopter.updated_at|date:"M d, Y H:i" }}</p>
+                    </div>
+                </div>
+                
+                {% if adopter.adoption_experience %}
+                <div class="mt-3">
+                    <h6><i class="fas fa-star"></i> Adoption Experience</h6>
+                    <p>{{ adopter.adoption_experience }}</p>
+                </div>
+                {% endif %}
+                
+                {% if adopter.motivation %}
+                <div class="mt-3">
+                    <h6><i class="fas fa-heart"></i> Motivation for Adoption</h6>
+                    <p>{{ adopter.motivation }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-cogs"></i> Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'orphanage:admin_approve_adopter' adopter.id %}" 
+                       class="btn btn-{% if adopter.is_approved %}outline-warning{% else %}success{% endif %}">
+                        {% if adopter.is_approved %}
+                            <i class="fas fa-edit"></i> Update Status
+                        {% else %}
+                            <i class="fas fa-check"></i> Approve Adopter
+                        {% endif %}
+                    </a>
+                    <a href="{% url 'orphanage:admin_adopters_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to List
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Statistics</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6">
+                        <h4 class="text-primary">{{ applications|length }}</h4>
+                        <small class="text-muted">Applications</small>
+                    </div>
+                    <div class="col-6">
+                        <h4 class="text-info">{{ interests|length }}</h4>
+                        <small class="text-muted">Interests</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Applications and Interests -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-file-alt"></i> Adoption Applications</h5>
+            </div>
+            <div class="card-body">
+                {% if applications %}
+                    {% for application in applications %}
+                    <div class="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
+                        <div>
+                            <strong>{{ application.child.name }}</strong>
+                            <br>
+                            <small class="text-muted">{{ application.application_date|date:"M d, Y" }}</small>
+                        </div>
+                        <span class="badge bg-{% if application.status == 'approved' %}success{% elif application.status == 'rejected' %}danger{% elif application.status == 'pending' %}warning{% else %}info{% endif %}">
+                            {{ application.get_status_display }}
+                        </span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted text-center">No applications yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-heart"></i> Interests Expressed</h5>
+            </div>
+            <div class="card-body">
+                {% if interests %}
+                    {% for interest in interests %}
+                    <div class="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
+                        <div>
+                            <strong>{{ interest.child.name }}</strong>
+                            <br>
+                            <small class="text-muted">{{ interest.interest_date|date:"M d, Y" }}</small>
+                        </div>
+                        <span class="badge bg-info">
+                            <i class="fas fa-heart"></i> Interested
+                        </span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted text-center">No interests expressed yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

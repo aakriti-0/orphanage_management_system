@@ -1,0 +1,82 @@
+{% extends "orphanage/admin/base.html" %}
+{% block title %}Review Adopter - {{ adopter.user.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-{% if adopter.is_approved %}success{% else %}warning{% endif %} text-white">
+                <h3 class="mb-0">
+                    <i class="fas fa-user-check"></i> 
+                    {% if adopter.is_approved %}Update Adopter Status{% else %}Review Adopter Application{% endif %}
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h5><i class="fas fa-user"></i> Personal Information</h5>
+                        <p><strong>Name:</strong> {{ adopter.user.get_full_name|default:adopter.user.username }}</p>
+                        <p><strong>Email:</strong> {{ adopter.user.email }}</p>
+                        <p><strong>Phone:</strong> {{ adopter.phone|default:"Not provided" }}</p>
+                        <p><strong>Address:</strong> {{ adopter.address|default:"Not provided" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h5><i class="fas fa-briefcase"></i> Professional Information</h5>
+                        <p><strong>Occupation:</strong> {{ adopter.occupation|default:"Not provided" }}</p>
+                        <p><strong>Annual Income:</strong> ₹{{ adopter.annual_income|default:"Not provided" }}</p>
+                        <p><strong>Family Size:</strong> {{ adopter.family_size }}</p>
+                        <p><strong>Marital Status:</strong> {{ adopter.get_marital_status_display }}</p>
+                    </div>
+                </div>
+                
+                {% if adopter.adoption_experience %}
+                <div class="mb-3">
+                    <h5><i class="fas fa-star"></i> Adoption Experience</h5>
+                    <p>{{ adopter.adoption_experience }}</p>
+                </div>
+                {% endif %}
+                
+                {% if adopter.motivation %}
+                <div class="mb-3">
+                    <h5><i class="fas fa-heart"></i> Motivation for Adoption</h5>
+                    <p>{{ adopter.motivation }}</p>
+                </div>
+                {% endif %}
+                
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Current Status:</strong> 
+                    {% if adopter.is_approved %}
+                        <span class="text-success">Approved</span> - This adopter can submit adoption applications.
+                    {% else %}
+                        <span class="text-warning">Pending Approval</span> - This adopter cannot submit adoption applications yet.
+                    {% endif %}
+                </div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                        {% if not adopter.is_approved %}
+                            <button type="submit" name="action" value="approve" class="btn btn-success btn-lg me-md-2">
+                                <i class="fas fa-check-circle"></i> Approve Adopter
+                            </button>
+                        {% endif %}
+                        
+                        <button type="submit" name="action" value="reject" class="btn btn-danger btn-lg">
+                            <i class="fas fa-times-circle"></i> 
+                            {% if adopter.is_approved %}Revoke Approval{% else %}Reject Application{% endif %}
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="mt-4">
+                    <a href="{% url 'orphanage:admin_adopter_detail' adopter.id %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Adopter Details
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

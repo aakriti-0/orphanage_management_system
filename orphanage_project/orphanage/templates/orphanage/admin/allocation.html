@@ -1,0 +1,26 @@
+{% extends "base.html" %}  {# optional if you have a base layout #}
+
+{% block content %}
+<h2>Donation Allocations</h2>
+
+<table border="1" cellpadding="8">
+  <tr>
+    <th>Child</th>
+    <th>Donation</th>
+    <th>Amount</th>
+    <th>Date</th>
+  </tr>
+  {% for alloc in allocations %}
+  <tr>
+    <td>{{ alloc.child.name }}</td>
+    <td>{{ alloc.donation.donor.name }} ({{ alloc.donation.amount }})</td>
+    <td>{{ alloc.allocated_amount }}</td>
+    <td>{{ alloc.date }}</td>
+  </tr>
+  {% empty %}
+  <tr>
+    <td colspan="4">No allocations yet.</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

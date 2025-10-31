@@ -1,0 +1,42 @@
+/* Public dashboard custom styles */
+.navbar {
+	box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+	background-color: #ffffff;
+}
+
+.hero {
+	background: url('../images/background.jpg') center center / cover no-repeat;
+	height: 420px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #fff;
+	text-shadow: 1px 1px 5px rgba(0,0,0,0.7);
+}
+
+.child-card {
+	background: #ffffff;
+	border-radius: 12px;
+	box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+	padding: 16px;
+	margin-bottom: 20px;
+	transition: transform 0.3s, box-shadow 0.3s;
+}
+.child-card:hover {
+	transform: translateY(-4px);
+	box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+}
+.child-card img {
+	border-radius: 12px;
+	width: 100%;
+	height: 220px;
+	object-fit: cover;
+	margin-bottom: 10px;
+}
+
+.info-section {
+	background-color: #e9f2fb;
+	padding: 40px 20px;
+	border-radius: 12px;
+	margin-bottom: 40px;
+}

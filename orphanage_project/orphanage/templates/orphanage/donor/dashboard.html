@@ -1,0 +1,213 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Donor Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Welcome, {{ donor.name }}</h1>
+        <a href="{% url 'orphanage:donor_logout' %}" class="btn btn-outline-danger">Logout</a>
+    </div>
+
+    <!-- Summary -->
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <div class="card bg-success text-white p-3">
+                <h5>Total Donations</h5>
+                <h3>{{ total_donations|floatformat:2 }}</h3>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card bg-info text-white p-3">
+                <h5>Total Allocated</h5>
+                <h3>{{ total_allocations|floatformat:2 }}</h3>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card bg-warning text-white p-3">
+                <h5>Available Balance</h5>
+                <h3>{{ available_balance|floatformat:2 }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Make Donation to Orphanage (General Fund) -->
+    <hr>
+    <h2>Donate to Orphanage (General Fund)</h2>
+    <form method="POST" action="{% url 'orphanage:make_donation' %}" class="mb-4">
+        {% csrf_token %}
+        <div class="row g-3 align-items-end">
+            <div class="col-md-6">
+                <label for="general_amount" class="form-label">Donation Amount</label>
+                <input type="number" step="0.01" min="1" name="amount" id="general_amount" class="form-control" required placeholder="e.g. 1000">
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-success w-100">Donate to Orphanage</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Make Donation to Specific Child -->
+    <h2>Donate to a Specific Child</h2>
+    <form method="POST" action="{% url 'orphanage:make_donation' %}">
+        {% csrf_token %}
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="child" class="form-label">Select Child</label>
+                <select name="child_id" id="child" class="form-select" required>
+                    <option value="" disabled selected>Select a child</option>
+                    {% for child in children %}
+                        <option value="{{ child.id }}">{{ child.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label for="amount" class="form-label">Donation Amount</label>
+                <input type="number" step="0.01" min="1" name="amount" id="amount" class="form-control" required>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Donate Now</button>
+    </form>
+
+  
+
+    <!-- Detailed Allocation Breakdown -->
+    <div class="card">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0">Detailed Allocation Breakdown</h5>
+            <small>See exactly how your donations are allocated to children</small>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Child Name</th>
+                            <th>Allocated Amount</th>
+                            <th>Need/Project</th>
+                            <th>Donation ID</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for allocation in detailed_allocations %}
+                        <tr>
+                            <td>{{ allocation.date|date:"M d, Y" }}</td>
+                            <td>
+                                {% if allocation.child %}
+                                    <span class="fw-bold text-primary">{{ allocation.child.name }}</span>
+                                {% else %}
+                                    <span class="text-muted">General Fund</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-success fs-6">{{ allocation.allocated_amount|floatformat:2 }}</span>
+                            </td>
+                            <td>
+                                {% if allocation.donation.allocated_need %}
+                                    <span class="text-info">{{ allocation.donation.allocated_need.title }}</span>
+                                {% else %}
+                                    <span class="text-muted">General Donation</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <small class="text-muted">#{{ allocation.donation.id }}</small>
+                            </td>
+                            <td>
+                                {% if allocation.donation.allocated_need %}
+                                    {% if allocation.donation.allocated_need.fulfilled %}
+                                        <span class="badge bg-success">Fulfilled</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">In Progress</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="badge bg-info">Allocated</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">
+                                <i class="fas fa-info-circle"></i> No allocations found. Make a donation to see how your money is allocated!
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recommended Needs -->
+    <hr>
+    <h2>Recommended Needs</h2>
+    <div class="row">
+        {% for need in needs %}
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ need.title }}</h5>
+                    <p class="card-text mb-1"><strong>Section:</strong> {{ need.section }}</p>
+                    <p class="card-text mb-1"><strong>Category:</strong> {{ need.category }}</p>
+                    <p class="card-text mb-1"><strong>Needed:</strong> {{ need.amount_needed|floatformat:2 }}</p>
+                    <p class="card-text mb-1"><strong>Raised:</strong> {{ need.amount_raised|floatformat:2 }}</p>
+                    {% if not need.fulfilled %}
+                    <p class="card-text text-danger mb-3"><strong>Remaining:</strong> {{ need.remaining_needed|floatformat:2 }}</p>
+                    {% else %}
+                    <span class="badge bg-success mb-3">Fulfilled</span>
+                    {% endif %}
+
+                    <form method="POST" action="{% url 'orphanage:make_donation' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="need_id" value="{{ need.id }}">
+                        <div class="input-group">
+                            <input type="number" step="0.01" min="1" name="amount" class="form-control" placeholder="Amount">
+                            <button type="submit" class="btn btn-success">Donate</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-muted">No recommended needs at the moment.</div>
+        {% endfor %}
+    </div>
+    
+    <!-- Also show Children Needs inside Recommendations -->
+    <hr>
+    <h3>Children Needs</h3>
+    <div class="row">
+        {% for child in children %}
+        {% if child.need %}
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ child.name }}</h5>
+                    <p class="card-text mb-2"><strong>Need:</strong> {{ child.need }}</p>
+                    <form method="POST" action="{% url 'orphanage:make_donation' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="child_id" value="{{ child.id }}">
+                        <div class="input-group">
+                            <input type="number" step="0.01" min="1" name="amount" class="form-control" placeholder="Amount">
+                            <button type="submit" class="btn btn-primary">Donate to {{ child.name }}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% empty %}
+        <div class="col-12 text-muted">No children needs listed.</div>
+        {% endfor %}
+    </div>
+
+</div>
+</body>
+</html>

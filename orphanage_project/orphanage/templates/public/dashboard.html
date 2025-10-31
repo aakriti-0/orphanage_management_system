@@ -1,0 +1,215 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Orphanage Portal</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link href="{% static 'css/public.css' %}" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f2f7f9;
+      color: #2c3e50;
+    }
+    .navbar {
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      background-color: #ffffff;
+    }
+    .navbar-brand {
+      font-weight: bold;
+      color: #007bff !important;
+    }
+    .navbar-nav .nav-link {
+      font-size: 16px;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+    .navbar-nav .nav-link:hover {
+      color: #0056b3 !important;
+    }
+    .hero {
+      background: url('{% static "images/background.jpg" %}') center center / cover no-repeat;
+      height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      text-shadow: 1px 1px 5px rgba(0,0,0,0.7);
+    }
+    .hero h1 {
+      font-size: 48px;
+      font-weight: bold;
+    }
+    section h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-weight: bold;
+      color: #007bff;
+    }
+    .child-card {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      padding: 20px;
+      margin-bottom: 25px;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .child-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+    }
+    .child-card img {
+      border-radius: 12px;
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      margin-bottom: 10px;
+    }
+    .child-card p {
+      font-size: 18px;
+      font-weight: 600;
+      color: #2c3e50;
+      margin-top: 10px;
+      text-align: center;
+    }
+    .info-section {
+      background-color: #e9f2fb;
+      padding: 50px 20px;
+      border-radius: 12px;
+      margin-bottom: 50px;
+    }
+    .info-section p {
+      font-size: 18px;
+      line-height: 1.6;
+    }
+    footer {
+      text-align: center;
+      padding: 20px;
+      background-color: #007bff;
+      color: #fff;
+      margin-top: 50px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">Orphanage Portal</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'orphanage:public_dashboard' %}">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#about">About Us</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#children">Our Children</a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="#contact">Contact Us</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'orphanage:adopter_register' %}">Adopt a Child</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'orphanage:adopter_login' %}">Adopter Login</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'orphanage:donor_login' %}">Donor Login</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'orphanage:admin_login' %}">Admin Login</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero Section -->
+<div class="hero">
+  <h1>Welcome to Our Orphanage</h1>
+  <p class="lead">Providing love, care, and hope for children in need</p>
+</div>
+
+<!-- Child Profiles Section -->
+<section id="children" class="container mt-5">
+  <h2>Meet Our Children</h2>
+  <div class="row">
+    {% for child in children %}
+    <div class="col-md-3">
+      <div class="child-card">
+        <a href="{% url 'orphanage:child_detail' child.pk %}">
+          {% if child.photo %}
+            <img src="{{ child.photo.url }}" alt="{{ child.name }}">
+          {% else %}
+            <img src="/static/images/default_child.png" alt="No photo available">
+          {% endif %}
+        </a>
+        <p>{{ child.name }}</p>
+        <div class="child-info">
+          <small class="text-muted">
+            <i class="fas fa-birthday-cake"></i> {{ child.age|default:"N/A" }} years | 
+            <i class="fas fa-venus-mars"></i> {{ child.gender }}
+          </small>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <p class="text-center">No children available at the moment.</p>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- About Us Section -->
+<section id="about" class="info-section container">
+  <h2>About Us</h2>
+  <p>We are dedicated to providing a safe, loving, and nurturing environment for children in need. Our mission is to support their education, health, and personal development to help them grow into confident, capable individuals.</p>
+  
+  <div class="row mt-4">
+    <div class="col-md-4 text-center">
+      <i class="fas fa-heart fa-3x text-primary mb-3"></i>
+      <h4>Adoption</h4>
+      <p>Find your forever family through our adoption program. We help connect loving families with children who need a home.</p>
+      <a href="{% url 'orphanage:adopter_register' %}" class="btn btn-primary">Start Adoption Process</a>
+    </div>
+    <div class="col-md-4 text-center">
+      <i class="fas fa-hand-holding-heart fa-3x text-success mb-3"></i>
+      <h4>Donation</h4>
+      <p>Support our children through donations. Your contribution helps provide food, education, and care for our children.</p>
+      <a href="{% url 'orphanage:donor_register' %}" class="btn btn-success">Become a Donor</a>
+    </div>
+    <div class="col-md-4 text-center">
+      <i class="fas fa-users fa-3x text-info mb-3"></i>
+      <h4>Volunteer</h4>
+      <p>Join our community of volunteers and make a difference in the lives of children. Every helping hand counts.</p>
+      <a href="#contact" class="btn btn-info">Contact Us</a>
+    </div>
+  </div>
+</section>
+
+<!-- Contact Us Section -->
+<section id="contact" class="info-section container">
+  <h2>Contact Us</h2>
+  <p>Email: info@orphanageportal.com</p>
+  <p>Phone: +123 456 7890</p>
+  <p>Address: 123 Orphanage Street, City, Country</p>
+</section>
+
+<!-- Footer -->
+<footer>
+  &copy; 2025 Orphanage Portal. All Rights Reserved.
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

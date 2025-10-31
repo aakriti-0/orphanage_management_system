@@ -1,0 +1,32 @@
+{% load static %}
+<h2>Needs</h2>
+<p><a href="{% url 'orphanage:add_need' %}" class="btn btn-primary">Add Need</a></p>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Section</th>
+      <th>Category</th>
+      <th>Amount Needed</th>
+      <th>Amount Raised</th>
+      <th>Fulfilled</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for need in needs %}
+    <tr>
+      <td>{{ need.title }}</td>
+      <td>{{ need.section }}</td>
+      <td>{{ need.category }}</td>
+      <td>{{ need.amount_needed }}</td>
+      <td>{{ need.amount_raised }}</td>
+      <td>{{ need.fulfilled }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="6" class="text-center text-muted">No needs found.</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+

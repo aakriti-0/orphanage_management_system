@@ -1,0 +1,45 @@
+{% load static %}
+<h2>Children and Allocated Staff</h2>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Gender</th>
+      <th>Age</th>
+      <th>Admission Date</th>
+      <th>Allocated Staff</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for child in children %}
+    <tr>
+      <td>{{ child.name }}</td>
+      <td>{{ child.gender }}</td>
+      <td>{{ child.age }}</td>
+      <td>{{ child.admission_date }}</td>
+      <td>
+        {% with allocs=child.staff_allocations.all %}
+          {% if allocs %}
+            {% for a in allocs %}
+              {{ a.staff.name }}{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+          {% else %}
+            <span class="text-muted">None</span>
+          {% endif %}
+        {% endwith %}
+      </td>
+      <td>
+        <a href="{% url 'orphanage:admin_child_detail' child.id %}" class="btn btn-sm btn-outline-primary">View</a>
+        <a href="{% url 'orphanage:admin_edit_child' child.id %}" class="btn btn-sm btn-outline-warning">Edit</a>
+        <a href="{% url 'orphanage:admin_delete_child' child.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="6" class="text-center text-muted">No children found.</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
